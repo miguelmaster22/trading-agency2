@@ -1,0 +1,6 @@
+REACT_APP_ENCR_STO=encripcionsecreta
+REACT_APP_TOKEN_API=tokenSecreto
+REACT_APP_URL_API=http://url.com
+REACT_APP_URL_API_2=http://url.com
+APP_URIMONGODB=http://url.com
+REACT_APP_PRIVATE_KY=0x......
