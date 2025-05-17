@@ -1,19 +1,35 @@
+const path = require('path');
+const dotenv = require('dotenv');
+const fs = require('fs');
+
+dotenv.config({ path: path.join(process.cwd(), '../.env') });
+
+const localEnvPath = path.join(process.cwd(), '../.env.local');
+//console.log(process.cwd(), localEnvPath);
+if (fs.existsSync(localEnvPath)) {
+  console.log("Loading local environment variables from .env.local");
+  dotenv.config({ path: localEnvPath });
+
+}
+
+const express = require("express");
+const cors = require("cors")
 const { Web3 } = require("web3");
 const Cryptr = require("cryptr");
+const bodyParser = require("body-parser");
 const BigNumber = require("bignumber.js");
+const mongoose = require('mongoose');
 const cron = require('node-cron');
 
 const env = process.env
 
-const express = require("express");
-const router = express.Router();
-
 function delay(s) { return new Promise(res => setTimeout(res, s * 1000)); }
 
+const uriMongoDB = env.APP_URIMONGODB + env.APP_NAME + "?authSource=admin&retryWrites=true&w=majority"
 const WalletVacia = "0x0000000000000000000000000000000000000000"
 const factorBlock = 1.7
 const factorFail = 30
-const abiContrato = require("../../abi/BinarySystemV4.json");
+const abiContrato = require("./BinarySystemV4.json");
 
 
 let allbinario = []
@@ -26,26 +42,76 @@ cron.schedule('0 0 */1 * * *', async () => {
 
   appReady = false;
 
+  await consultarBinario();
   await escalarRedV2(["0x04302e4e19552635EADd013eFe54E10f30BA1Bf2"])
+  await consultarBinario();
 
   console.log('end task every Hour ');
 
 }, null, true, 'America/Bogota');
 
 
+const Schema = mongoose.Schema;
+
+const Binario = new Schema({
+  _id: String,
+  wallet: String,
+  registered: Boolean,
+  invested: String,
+  invested_leader: String,
+  upTo: String,
+  lastUpdate: Number,
+  reclamados: String,
+  referer: String,
+  up: String,
+  left: String,
+  lReclamados: String,
+  lExtra: String,
+  lPersonas: String,
+  lPuntos: String,
+  right: String,
+  rReclamados: String,
+  rExtra: String,
+  rPersonas: String,
+  rPuntos: String,
+  idBlock: Number,
+  idBlock_old: Number,
+  puntosActivos: String,
+  hand: Number,
+  retirableA: Number
+
+});
+
+const binario = mongoose.model('binarios-v2', Binario);
+
+const app = express();
+
+const allowedOrigins = env.ALLOWED_ORIGINS ? env.ALLOWED_ORIGINS.split(",") : [];
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}))
+
+app.use(express.json());
+
+const port = env.PORT || "5000";
+
 const addressContrato = env.REACT_APP_SMARTCONTRACT; //Nevo v4
 
-const KEY_Secreto = env.REACT_APP_ENCR_STO ?? "AAAAAAAAAAAAAAAA"; // cifrado secreto para evitar fugas de informacion sencible
+const KEY_Secreto = env.REACT_APP_ENCR_STO || "AAAAAAAAAAAAAAAA"; // cifrado secreto para evitar fugas de informacion sencible
 
-const TOKEN = env.REACT_APP_TOKEN_API ?? "1234567890"; // Id de conecion para identificar
+const TOKEN = env.REACT_APP_TOKEN_API || "1234567890"; // Id de conecion para identificar
 
-const RED = env.APP_RED ?? "https://bsc-dataseed.binance.org/";
+const URL = "/api/v2/";
+
+const RED = env.APP_RED || "https://bsc-dataseed.binance.org/";
 
 let redes = ["https://bsc-dataseed1.binance.org/", "https://bsc-dataseed2.binance.org/", "https://bsc-dataseed3.binance.org/", "https://bsc-dataseed4.binance.org/"]
 
-let web3 = new Web3(RED); 
-let web3_1 = new Web3(redes[0]); 
-let web3_2 = new Web3(redes[1]); 
+let web3 = new Web3(RED); // demas funciones
+let web3_1 = new Web3(redes[0]); // contrato nuevo
+let web3_2 = new Web3(redes[1]); // contrato viejo
 let web3_3 = new Web3(redes[2]);
 
 let prinka = env.REACT_APP_PRIVATE_KY
@@ -56,7 +122,7 @@ let prinka = env.REACT_APP_PRIVATE_KY
 //prinka = encryptString("...", env.REACT_APP_PRIVATE_CR2)
 //console.log(prinka)
 
-const account_1_priv = decryptString(prinka, env.REACT_APP_PRIVATE_CR2 ?? "AAAAAAAAAAAAAAAA"); 
+const account_1_priv = decryptString(prinka, env.REACT_APP_PRIVATE_CR2)
 
 web3.eth.accounts.wallet.add(account_1_priv);
 web3_1.eth.accounts.wallet.add(account_1_priv);
@@ -101,14 +167,14 @@ web3_3.eth.getBalance(WALLET_API).then(async (r) => {
         "value": amountToSend
       }
     */
-    //console.log("Enviar a Binance: " + evio.toString(10) + " BNB")
+    console.log("Enviar a Binance: " + evio.toString(10) + " BNB")
 
   }
 
 })
 
 async function nonce() {
-  var activo = await web3_3.eth.getTransactionCount(WALLET_API, "pending");
+  var activo = await web3_3.eth.getTransactionCount(WALLET_API, "pending").catch(console.log)
   console.log(new BigNumber(activo).toString(10));
 
   gasPrice = new BigNumber(await web3_3.eth.getGasPrice())
@@ -142,16 +208,19 @@ function decryptString(s, KEY) {
   }
 }
 
-//iniciarAplicacion();
+iniciarAplicacion()
 
 async function iniciarAplicacion() {
 
   if (!appReady) {
+    await mongoose.connect(uriMongoDB)
+      .then(async () => {
+        console.log("conectado MongoDB");
 
-    //await escalarRedV2(["0x04302e4e19552635EADd013eFe54E10f30BA1Bf2"])
 
-    console.log(">---- hecho! -------<")
+        console.log(">---- hecho! -------<")
 
+      })
 
   }
 
@@ -159,7 +228,7 @@ async function iniciarAplicacion() {
 
 }
 
-router.route("/").get( (req, res) => {
+app.get(URL, (req, res) => {
   res.send({ online: true });
 });
 
@@ -171,12 +240,11 @@ async function hacerTakeProfit(wallet) {
     result: false,
   };
 
-  let retBinario = new BigNumber(0);
   let user = null
   let newUser = {}
 
   try {
-    user = await binario.findOne({ wallet: (wallet).toLocaleLowerCase() }, { _id: false })
+    user = await binario.findOne({ wallet: wallet }, { _id: false })
 
   } catch (error) {
     console.log(error.toString())
@@ -189,12 +257,12 @@ async function hacerTakeProfit(wallet) {
   let puntosReclamados = puntosL.toNumber() <= puntosR.toNumber() ? puntosL : puntosR
 
   //sobre estos puntos calcula lo que puede retirar en USDT
-  let retBin = retirableBinario(puntosL.toString(10), puntosR.toString(10))
+  let retBinario = new BigNumber(retirableBinario(puntosL.toString(10), puntosR.toString(10)))
 
   let puntosUsados = new BigNumber(0)
 
-  if (new BigNumber(retBin).toNumber() <= 0) {
-    retBin = 0
+  if (retBinario.toNumber() <= 0) {
+    retBinario = new BigNumber(0)
   } else {
     newUser.lReclamados = new BigNumber(user.lReclamados).plus(puntosReclamados).toString(10)
     newUser.rReclamados = new BigNumber(user.rReclamados).plus(puntosReclamados).toString(10)
@@ -202,41 +270,14 @@ async function hacerTakeProfit(wallet) {
     puntosUsados = new BigNumber(newUser.lReclamados)
 
   }
-
-  retBinario = retBin
-
-  let pRango = new BigNumber(0)
-
-  let rangoArray = []
-
-  for (let index = 0; index < 12; index++) {
-    rangoArray[index] = await contrato.methods
-      .rangoReclamado("0xcBD6272721306Cbc2621B6919481bD0a7d5f0ce3", 0)
-      .call()
-      .then((r) => {
-        //console.log(index, r);
-        return r;
-      })
-      .catch((e) => {
-        console.log(e.toString());
-        return false;
-      });
-
-  }
-
-  let truerango = true;
-
-  if (truerango) {
-    pRango = puntosUsados
-  }
-
-
+  
   let gas = await contrato.methods
-    .corteBinarioDo(wallet, retBinario, pRango.toString(10), 0)
-    .estimateGas({ from: WALLET_API }); // gas: 1000000});
+    .corteBinarioDo(wallet, retBinario.toString(10), puntosUsados.toString(10), 0)
+    .estimateGas({ from: WALLET_API })
+    .catch((e) => { return 1000000 }) // gas: 1000000});
 
   await contrato.methods
-    .corteBinarioDo(wallet, retBinario, pRango.toString(10), 0)
+    .corteBinarioDo(wallet, retBinario.toString(10), puntosUsados.toString(10), 0)
     .send({ gasPrice: gasPrice.toString(10), gas: gas })
     .then(async (r) => {
       await binario.updateOne({ wallet: (wallet).toLowerCase() }, newUser)
@@ -275,7 +316,7 @@ async function hacerTakeProfit(wallet) {
   return result;
 }
 
-router.route("/retiro").post(async (req, res) => {
+app.post(URL + "retiro", async (req, res) => {
   let result = {
     result: false,
     message: "no enter data"
@@ -339,7 +380,7 @@ async function estimateRetiro(wallet) {
 
 }
 
-router.route("/calculate/retiro").post(async (req, res) => {
+app.post(URL + "calculate/retiro", async (req, res) => {
   let result = {
     result: false,
     error: true,
@@ -358,7 +399,7 @@ router.route("/calculate/retiro").post(async (req, res) => {
   res.send(result);
 });
 
-router.route("/binario/todo").get(async (req, res) => {
+app.get(URL + "binario/todo", async (req, res) => {
   let result = {
     result: true,
     data: allbinario
@@ -499,11 +540,13 @@ async function binariV2(wallet) {
 
 }
 
-router.route("/usuario/actualizar").get( async (req, res) => {
+app.get(URL + "usuario/actualizar", async (req, res) => {
 
   let result = {
     result: false
   };
+
+  //console.log(req.query)
 
   if (req.query.wallet) {
 
@@ -527,7 +570,7 @@ router.route("/usuario/actualizar").get( async (req, res) => {
   res.send(result);
 });
 
-router.route("/binario/actualizar").get( async (req, res) => {
+app.get(URL + "binario/actualizar", async (req, res) => {
 
   let result = {
     result: false
@@ -599,7 +642,7 @@ async function lecturaBinari(wallet) {
 
 }
 
-router.route("/binario").get( async (req, res) => {
+app.get(URL + "binario", async (req, res) => {
 
   let result = {
     result: false
@@ -666,48 +709,67 @@ async function consultarBinario() {
 
 }
 
-router.route("/puntos/add").post( async (req, res) => {
+async function selectorBinario(wallet, consultaForzada) {
+  wallet = wallet.toLowerCase()
+  //console.log("selector: " + wallet)
+
+  let consulta = undefined;
+
+  consulta = binarioindexado[wallet]
+
+  let userTemp = null;
+
+  try {
+    userTemp = await binario.findOne({ wallet: wallet }, { _id: false })
+
+  } catch (error) {
+    console.log(error.toString())
+  }
+
+  if (consulta === undefined || consultaForzada || userTemp === null) {
+    await consultarUsuario(wallet, true)
+  }
+
+  consulta = binarioindexado[wallet]
+
+  return consulta
+
+}
+
+app.post(URL + "puntos/add", async (req, res) => {
 
   let result = {
     result: false,
   };
 
-  if (typeof req.body.data === "string") {
-    let data = JSON.parse(decryptString(req.body.data, KEY_Secreto));
+  let { data } = req.body
 
-    console.log(data)
+  if (typeof data === "string") {
+    let { token, wallet, hand, puntos }  = JSON.parse(decryptString(data, KEY_Secreto));
 
-    if (data.token == TOKEN) {
+    if (token == TOKEN && wallet && puntos) {
 
-      if ("puntos" in data) {
+      wallet = wallet.toLocaleLowerCase()
 
-        let user = await binario.findOne({ wallet: (data.wallet).toLocaleLowerCase() }, { _id: false })
+      let user = await consultarUsuario(wallet, true)
 
-        let newUser = {}
+      let newUser = {}
 
-        if (data.hand === 0) {
-          newUser = {
-            lExtra: new BigNumber(user.lExtra).plus(data.puntos).toString(10)
-          }
-
-        } else {
-          newUser = {
-            rExtra: new BigNumber(user.rExtra).plus(data.puntos).toString(10)
-          }
-        }
-
-        await binario.updateOne({ wallet: (data.wallet).toLocaleLowerCase() }, newUser)
-        console.log("puntos asignados: " + (data.wallet).toLocaleLowerCase() + " hand: " + data.hand + " -> " + data.puntos)
-
-        await consultarUsuario((data.wallet).toLocaleLowerCase(), true, true, true)
-
-        result.result = true
+      if (hand === "left") {
+        newUser.lExtra = new BigNumber(user.lExtra).plus(puntos).toString(10)
       } else {
-        result.msg = "not correct value"
-
+        newUser.rExtra = new BigNumber(user.rExtra).plus(puntos).toString(10)
       }
+
+      await binario.updateOne({ wallet }, newUser)
+      console.log("puntos asignados: " + wallet + " hand: " + hand + " -> " + puntos)
+
+      await consultarUsuario(wallet, true, true, true)
+
+      result.result = true
+
     } else {
-      result.msg = "not auth"
+      result.msg = "not auth or parameters"
     }
   } else {
     result.msg = "data not found"
@@ -717,11 +779,11 @@ router.route("/puntos/add").post( async (req, res) => {
 })
 
 async function escalarRedV2() {
-  await consultarBinario();
+
   let lista2 = await binario.find({}, { wallet: true, idBlock: true }).sort({ idBlock: -1 })
 
   console.log("---- V2 Start Loop / escalar red LISTA ----")
-  
+
   for (let index = 0; index < lista2.length; index++) {
     //console.log(index, lista2[index].wallet, lista2[index].idBlock)
     await delay(0.4);
@@ -731,7 +793,7 @@ async function escalarRedV2() {
   }
 
   console.log("----v2 END Loop / escalar red ----")
-  await consultarBinario();
+
 }
 
 async function conectarUpline(from) {
@@ -1040,16 +1102,10 @@ async function conectarUpline(from) {
 
   userTemp = await binario.findOne({ wallet: from }, { _id: false })
 
-  if (from !== WalletVacia && !userTemp.registered && userTemp.lReclamados === "0" && userTemp.rReclamados === "0" && (userTemp.lastUpdate === 0 || userTemp.lastUpdate === undefined || userTemp.lastUpdate < Date.now() - 86400 * 1000)) {
-    console.log("Cuenta inactiva:  " + from)
-    binario.deleteOne({ wallet: from }).then(() => {
-      console.log("Borrado cuenta inactiva: " + from)
-    })
-    .catch((e) => { 
-      console.log(e.toString())
-    })
 
-    result = false
+  if (from !== WalletVacia && !userTemp.registered && userTemp.lReclamados === "0" && userTemp.rReclamados === "0") {
+    //await binario.deleteOne({ wallet: from })
+    console.log("se deberia borrar: from:  " + from)
 
   }
 
@@ -1077,7 +1133,7 @@ async function crearUsuario(from) {
 
   if (investorNew.registered) {
 
-    let depositos = await contrato.methods.verListaDepositos(from).call();
+    let depositos = await contrato.methods.verListaDepositos(from).call().catch(console.log)
 
     for (let index = 0; index < depositos.length; index++) {
       let dep = new BigNumber(depositos[index].valor)
@@ -1113,7 +1169,6 @@ async function crearUsuario(from) {
     newUser = {
       wallet: from,
       registered: false,
-      lastUpdate: Date.now(),
       invested: newUser.invested,
       invested_leader: newUser.invested_leader,
       upTo: upTo.toString(10),
@@ -1138,9 +1193,9 @@ async function crearUsuario(from) {
     if (investorNew.registered) {
       newUser.registered = true
 
-      newUser.idBlock = parseInt(await contrato.methods.addressToId(from).call())
+      newUser.idBlock = parseInt(await contrato.methods.addressToId(from).call().catch(console.log()))
 
-      let consulta = await contrato.methods.upline(from).call();
+      let consulta = await contrato.methods.upline(from).call().catch(console.log)
       newUser.referer = (consulta._referer).toLowerCase();
     }
 
@@ -1252,24 +1307,27 @@ async function actualizarUsuario(from, data) {
 
     } catch (error) { }
 
+
     let invertido = new BigNumber(0)
     let leader = new BigNumber(0)
     let upTo = new BigNumber(0)
-    let porcentaje = await contrato.methods.porcent().call()
+    let porcentaje = await contrato.methods.porcent().call().catch(console.log)
+
 
     if (investorNew.registered) {
-      newUser.idBlock = parseInt(await contrato.methods.addressToId(from).call())
+      newUser.idBlock = parseInt(await contrato.methods.addressToId(from).call().catch(console.log))
       newUser.registered = true;
 
-      let consulta = await contrato.methods.upline(from).call()
+      let consulta = await contrato.methods.upline(from).call().catch(console.log)
 
       newUser.hand = parseInt(consulta._lado);
       if (newUser.hand <= 1 && userTemp.referer === WalletVacia) {
+
         newUser.referer = (consulta._referer).toLowerCase();
 
       }
 
-      let depositos = await contrato.methods.verListaDepositos(from).call();
+      let depositos = await contrato.methods.verListaDepositos(from).call().catch(console.log)
 
       for (let index = 0; index < depositos.length; index++) {
         let dep = new BigNumber(depositos[index].valor)
@@ -1290,9 +1348,8 @@ async function actualizarUsuario(from, data) {
         realInvested = new BigNumber(investorNew.invested)
       }
 
-      newUser.retirableA = new BigNumber(await contrato.methods.retirableA(from).call()).toNumber()
+      newUser.retirableA = new BigNumber(await contrato.methods.retirableA(from).call().catch(console.log)).toNumber()
 
-      newUser.lastUpdate = Date.now() 
 
     } else {
       newUser.registered = false;
@@ -1342,10 +1399,31 @@ async function actualizarUsuario(from, data) {
 
 }
 
-router.route("/total/retirar").get( async (req, res) => {
+async function consultarLados(from) {
+  from = from.toLowerCase()
+  let userTemp = await selectorBinario(from, true)
+  let array = []
+
+  if (userTemp !== null) {
+
+    if (userTemp.left && userTemp.left !== WalletVacia) {
+      array.push(userTemp.left)
+    }
+
+    if (userTemp.right && userTemp.right !== WalletVacia) {
+      array.push(userTemp.right)
+    }
+  }
+
+  return array
+}
+
+app.get(URL + "total/retirar", async (req, res) => {
 
   /*
+  await consultarBinario();
   await escalarRedV2();
+  await consultarBinario();
   */
   //await consultarUsuario("0x0ee1168b2e5d2ba5e6ab4bf6ca00881981d84ab9",false,true)
 
@@ -1373,4 +1451,15 @@ router.route("/total/retirar").get( async (req, res) => {
 });
 
 
-module.exports = router;
+app.use(express.static(path.join(process.cwd(), '../client/docs')));
+
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: "Ruta no encontrada" });
+});
+
+
+app.listen(port, () => {
+  console.log("WEB - Listening on: http://localhost:" + port);
+  console.log("API - Listening on: http://localhost:" + port + URL);
+
+});

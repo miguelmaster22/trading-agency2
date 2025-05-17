@@ -5,9 +5,8 @@
     # Copiar e instalar frontend
     COPY . .
     WORKDIR /app
-    RUN npm install && npm run build
+    RUN npm run install:all && npm run build
     
     # Exponer puerto y lanzar servidor
-    EXPOSE 3001
     CMD ["npm", "start"]
     
