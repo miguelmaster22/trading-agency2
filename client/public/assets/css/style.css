@@ -136,7 +136,6 @@ h6 {
 
 .header-nav .nav-profile {
   color: #cccccc;
-  margin-top: 80px;
   margin-right: 50px;
   position: relative;
 }
@@ -159,9 +158,8 @@ h6 {
 }
 
 .header-nav .profile {
-  min-width: 240px;
+  min-width: 150px;
   padding-bottom: 0;
-  top: 8px !important;
 }
 
 .header-nav .profile .dropdown-header h6 {
@@ -246,7 +244,7 @@ h6 {
 .navbar .dropdown ul {
   display: block;
   position: absolute;
-  left: 5px;
+  left: -90px;
   top: calc(100% + 30px);
   margin: 5px 0 0 0;
   padding: 10px 0;
@@ -260,7 +258,7 @@ h6 {
 }
 
 .navbar .dropdown ul li {
-  min-width: 200px;
+  min-width: 100px;
 }
 
 .navbar .dropdown ul a {
@@ -433,7 +431,6 @@ h6 {
   /* Elimina el background: linear-gradient anterior */
   /* background: linear-gradient(0deg, rgb(42, 44, 57) 0%, rgb(51, 54, 74) 100%); */
   /* Aplica la nueva imagen de fondo */
-  background-image: url("https://images.unsplash.com/photo-1649465555429-d465316c33f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzNTc5fDB8MXxzZWFyY2h8Nnx8Z29sZCUyMGVnZ3xlbnwwfHx8fDE3NDM1MjU0ODR8MA&ixlib=rb-4.0.3&q=80&w=2560");
   /* Mantiene las propiedades de tamaño y posición */
   background-size: cover;
   background-position: center; /* Cambiado de inherit a center para mejor ajuste general */
@@ -886,7 +883,6 @@ section {
 --------------------------------------------------------------*/
 #services {
   /* Aplica la nueva imagen de fondo */
-  background-image: url("https://images.unsplash.com/photo-1649465555429-d465316c33f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzNTc5fDB8MXxzZWFyY2h8Nnx8Z29sZCUyMGVnZ3xlbnwwfHx8fDE3NDM1MjU0ODR8MA&ixlib=rb-4.0.3&q=80&w=2560");
   background-size: cover;
   background-position: center;
   background-attachment: fixed; /* Opcional: para efecto parallax */
@@ -901,7 +897,7 @@ section {
   right: 0;
   top: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.85); /* Overlay blanco semi-transparente */
+  
   z-index: 1;
 }
 
@@ -916,7 +912,6 @@ section {
   position: relative;
   overflow: hidden;
   border-radius: 10px;
-  background: #fff; /* Mantenido, puede necesitar ajuste si choca con el overlay */
   box-shadow: 0 2px 29px 0 rgba(68, 88, 144, 0.12); /* Mantenido */
   transition: all 0.4s ease-in-out;
   width: 100%;
@@ -947,11 +942,10 @@ section {
   font-weight: 700; /* Mantenido */
   margin-bottom: 15px;
   font-size: 18px; /* Mantenido */
-  /* Fuente heredada de body/a */
 }
 
 .services .title a {
-  color: #2a2c39; /* Mantenido */
+  color: #bdbdbd; /* Mantenido */
   transition: ease-in-out 0.3s;
 }
 
@@ -1767,7 +1761,6 @@ section {
 #footer {
   /* background: #000d3d; */ /* Color de fondo original comentado */
   /* Aplica la nueva imagen de fondo */
-  background-image: url("https://images.unsplash.com/photo-1649465555429-d465316c33f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzNTc5fDB8MXxzZWFyY2h8Nnx8Z29sZCUyMGVnZ3xlbnwwfHx8fDE3NDM1MjU0ODR8MA&ixlib=rb-4.0.3&q=80&w=2560");
   background-size: cover;
   background-position: center;
   color: #fff; /* Mantenido */
