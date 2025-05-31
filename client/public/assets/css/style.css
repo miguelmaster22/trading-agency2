@@ -180,7 +180,6 @@ h6 {
 .navbar .dropdown ul { /* Estilo para el menú desplegable */
   display: block;
   position: absolute;
-  left: 5px;
   top: calc(100% + 10px); /* Ajustado para mejor posicionamiento */
   margin: 0;
   padding: 10px 0;
