@@ -80,7 +80,7 @@ class App extends Component {
           )
 
           let isAdmin = false;
-          let cuenta = accounts[0]; //"0x2198b0D4f54925DCCA173a84708BA284Ac85Cc37"//
+          let cuenta = accounts[0];
           let level = await binaryProxy.methods.leveling(cuenta).call({ from: cuenta })
 
           if (level >= 1) {
@@ -176,7 +176,7 @@ class App extends Component {
     var loc = document.location.href;
 
     var vWallet = "0x0000000000000000000000000000000000000000"
-    //console.log(loc);
+
     if (loc.indexOf('?') > 0) {
 
       ruta = loc.split('?')[1];
