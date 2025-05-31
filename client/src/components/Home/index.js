@@ -434,29 +434,6 @@ export default class Home extends Component {
 
           />
 
-
-          <div className="container mt-5">
-            <div className="row">
-              <div className="col-md-12">
-                <div className="icon-box">
-                  <header style={{ textAlign: "center" }} className="section-header">
-                    <h3 className="white">
-                      <i className="fa fa-university mr-2" aria-hidden="true"></i>
-                      <span style={{ fontWeight: "bold" }}>Historical profitability</span>
-                      <hr />
-                    </h3>
-
-                  </header>
-                  <ul>
-                    <li> </li>
-                  </ul>
-
-
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
     );

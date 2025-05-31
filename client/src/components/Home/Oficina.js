@@ -458,7 +458,7 @@ export default class Oficina extends Component {
       let misPuntosRango = this.props.investor.binario[0].usados
 
       let rangoArray = [];
-      let rangoEstilo = "btn-secondary btn-lg";
+      let rangoEstilo = "btn-secondary ";
       let gananciasRango = "Go for the next level";
       let funcionRango = () => { };
       let cantidad = "";
@@ -535,7 +535,7 @@ export default class Oficina extends Component {
 
             //pRanked = new BigNumber(totalRango[index].puntos)
 
-            rangoEstilo = "btn-success btn-lg";
+            rangoEstilo = "btn-success ";
             cantidad = new BigNumber(await this.props.contract.binaryProxy.methods.gananciasRango(index).call({ from: this.state.currentAccount }))
 
             gananciasRango = `Claim ${cantidad.shiftedBy(-18).dp(2).toString(10)} USDT`;
@@ -630,14 +630,14 @@ export default class Oficina extends Component {
     var { available, invested, link, link2, rango, retirableA, takeProfit } = this.state;
 
 
-    let takePro = (<button className="btn btn-info btn-lg d-block text-center mx-auto mt-1" disabled>
+    let takePro = (<button className="btn btn-info  d-block text-center mx-auto mt-1" disabled>
       Take Profit
     </button>)
 
     if (takeProfit * 1 > 1) {
 
       takePro = (<button
-        className="btn btn-info btn-lg d-block text-center mx-auto mt-1"
+        className="btn btn-info  d-block text-center mx-auto mt-1"
         onClick={() => {
           this.withdraw();
         }}
@@ -648,7 +648,7 @@ export default class Oficina extends Component {
     }
 
     let retiroBoton = (
-      <button type="button" className="btn btn-primary btn-lg d-block text-center mx-auto mt-1" disabled>
+      <button type="button" className="btn btn-primary  d-block text-center mx-auto mt-1" disabled>
         Withdraw {retirableA} USDT
       </button>
 
@@ -659,7 +659,7 @@ export default class Oficina extends Component {
 
         <button
           type="button"
-          className="btn btn-primary btn-lg d-block text-center mx-auto mt-1"
+          className="btn btn-primary  d-block text-center mx-auto mt-1"
           onClick={async () => {
 
             if (takeProfit * 1 > this.state.MIN_RETIRO) {
@@ -814,7 +814,7 @@ export default class Oficina extends Component {
                 <a href="#Rank">Points: {this.state.pRanked} {proximospuntos} <br></br>Rank: {rango}</a>
               </h4>
               <p className="description">
-                <button className={"btn " + this.state.rangoEstilo + " btn-lg"} onClick={this.state.funcionRango}>
+                <button className={"btn " + this.state.rangoEstilo + " "} onClick={this.state.funcionRango}>
                   {this.state.gananciasRango}
                 </button><br></br>
                 {"To unlock the next rank should be:"}<br></br>
@@ -881,7 +881,7 @@ export default class Oficina extends Component {
                 <CopyToClipboard text={link} onCopy={() => {
                   window.alert("link copied to clipboard");
                 }}>
-                  <button type="button" className="btn btn-primary btn-lg" >
+                  <button type="button" className="btn btn-primary " >
                     COPY LINK LEFT
                   </button>
                 </CopyToClipboard>
@@ -912,7 +912,7 @@ export default class Oficina extends Component {
                 <CopyToClipboard text={link2} onCopy={() => {
                   window.alert("link copied to clipboard");
                 }}>
-                  <button type="button" className="btn btn-primary btn-lg" >
+                  <button type="button" className="btn btn-primary " >
                     COPY LINK RIGHT
                   </button>
                 </CopyToClipboard>

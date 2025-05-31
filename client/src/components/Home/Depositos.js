@@ -40,17 +40,25 @@ export default class Depositos extends Component {
     if (parseInt(this.state.totalPakc) > 0) {
       leader = <> | Leader Pack {this.state.totalPakc} USDT </>
     }
+
     return (
-      <div className="container mt-4">
-        <header style={{ textAlign: "center" }} className="section-header">
-          <h3 className="white">
-            <i className="fa fa-university mr-2" aria-hidden="true"></i>
-            <span style={{ fontWeight: "bold" }}>Active contract ({this.state.depositos.length}) | Deposit {this.state.totalDeposit} USDT {leader}</span>
-          </h3>
-          <div className="row text-center">
-            {this.state.depositos}
+      <div className="container mt-5">
+        <div className="row">
+          <div className="col-md-12">
+
+            <header style={{ textAlign: "center" }} className="section-header">
+              <h3 className="white">
+                <i className="fa fa-university mr-2" aria-hidden="true"></i>
+                <span style={{ fontWeight: "bold" }}>Active contract ({this.state.depositos.length}) | Deposit {this.state.totalDeposit} USDT {leader}</span>
+                <hr></hr>
+              </h3>
+
+            </header>
           </div>
-        </header>
+        </div>
+        <div className="row text-center">
+          {this.state.depositos}
+        </div>
       </div>
     );
   }

@@ -568,7 +568,7 @@ export default class CrowdFunding extends Component {
                   <br />
                   <br />
                   <button
-                    className="btn btn-success btn-lg"
+                    className="btn btn-success"
                     onClick={() => this.deposit()}
                   >
                     {this.state.deposito}
