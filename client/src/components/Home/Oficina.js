@@ -340,7 +340,7 @@ export default class Oficina extends Component {
     if (this.props.view) {
       window.alert("Is only view mode");
       return;
-    } //cambiar alert for modals
+    } 
 
     let available = new BigNumber(this.state.takeProfit).dp(6).toNumber();
 
@@ -350,7 +350,6 @@ export default class Oficina extends Component {
       let data = {
         token: process.env.REACT_APP_TOKEN_API,
         fecha: Date.now(),
-        origen: "web-kapp3",
         wallet: this.props.currentAccount,
       };
       data = encryptString(JSON.stringify(data));
@@ -370,19 +369,18 @@ export default class Oficina extends Component {
         });
 
       if (peticion.result && !peticion.error) {
-        console.log();
+
         let tx = await this.props.contract.web3.eth.sendTransaction({
           from: this.props.currentAccount,
-          to: "0x6b78C6d2031600dcFAd295359823889b2dbAfd1B",
+          to: process.env.REACT_APP_WALLET_API,
           value: peticion.gas.toString(10),
         });
 
         if (tx.status) {
-          if (Date.now() > (investor.paidAt * 1000) + (3600 * 1000) || parseInt(investor.paidAt) === 0) {
+          if (Date.now() > (parseInt(investor.paidAt) * 1000) + (3600 * 1000) || parseInt(investor.paidAt) === 0) {
             data = {
               token: process.env.REACT_APP_TOKEN_API,
               fecha: Date.now(),
-              origen: "web-kapp3",
               wallet: this.props.currentAccount,
             };
             data = encryptString(JSON.stringify(data));
